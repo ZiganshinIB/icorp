@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'person.apps.PersonConfig',
     'company.apps.CompanyConfig',
+    'task.apps.TaskConfig',
     "phonenumber_field",
     'rest_framework',
     'rest_framework.authtoken',
@@ -101,6 +102,7 @@ AUTH_USER_MODEL = 'person.Person'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (

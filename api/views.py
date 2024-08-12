@@ -17,11 +17,16 @@ from .permissions import CanCreatePosition, CanUpdatePosition, CanDeletePosition
 from company.models import Department
 from company.serializers import DepartmentSerializer
 from .permissions import CanCreateDepartment, CanUpdateDepartment, CanDeleteDepartment
+# Task
+from task.models import Task
+from task.serializers import TaskSerializer
+from .permissions import IsOwner, CanViewTask, CanCreateTask, CanUpdateTask, CanDeleteTask
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    permissions_classes = [permissions.IsAuthenticated]
 
     def get_permissions(self):
         if self.action == 'create':
@@ -50,6 +55,38 @@ class SiteViewSet(viewsets.ModelViewSet):
             permission = [permissions.IsAuthenticated]
         return [permission_class() for permission_class in permission]
 
+    def get_queryset(self):
+        company_id = self.request.query_params.get('company_id', None)
+        if company_id is not None:
+            return self.queryset.filter(company_id=company_id)
+        return self.queryset
+
+
+class DepartmentViewSet(viewsets.ModelViewSet):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+    permissions_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action == 'create':
+            permission = [CanCreateDepartment]
+        elif self.action == 'update':
+            permission = [CanUpdateDepartment]
+        elif self.action == 'destroy':
+            permission = [CanDeleteDepartment]
+        else:
+            permission = [permissions.IsAuthenticated]
+        return [permission_class() for permission_class in permission]
+
+    def get_queryset(self):
+        site_id = self.request.query_params.get('site_id', None)
+        if site_id is not None:
+            return self.queryset.filter(site_id=site_id)
+        company_id = self.request.query_params.get('company_id', None)
+        if company_id is not None:
+            return self.queryset.filter(company_id=company_id)
+        return self.queryset
+
 
 class PositionViewSet(viewsets.ModelViewSet):
     queryset = Position.objects.all()
@@ -66,18 +103,32 @@ class PositionViewSet(viewsets.ModelViewSet):
             permission = [permissions.IsAuthenticated]
         return [permission_class() for permission_class in permission]
 
+    def get_queryset(self):
+        department_id = self.request.query_params.get('department_id', None)
+        if department_id is not None:
+            return self.queryset.filter(department_id=department_id)
+        site_id = self.request.query_params.get('site_id', None)
+        if site_id is not None:
+            return self.queryset.filter(department__site_id=site_id)
+        company_id = self.request.query_params.get('company_id', None)
+        if company_id is not None:
+            return self.queryset.filter(department__site__company_id=company_id)
+        return self.queryset
 
-class DepartmentViewSet(viewsets.ModelViewSet):
-    queryset = Department.objects.all()
-    serializer_class = DepartmentSerializer
+
+class TaskViewSet(viewsets.ModelViewSet):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
 
     def get_permissions(self):
         if self.action == 'create':
-            permission = [CanCreateDepartment]
-        elif self.action == 'update':
-            permission = [CanUpdateDepartment]
-        elif self.action == 'destroy':
-            permission = [CanDeleteDepartment]
-        else:
             permission = [permissions.IsAuthenticated]
+        elif self.action == 'update':
+            permission = [CanUpdateTask, IsOwner]
+        elif self.action == 'destroy':
+            permission = [CanDeleteTask]
+        elif self.action == 'retrieve':
+            permission = [CanViewTask, IsOwner]
+        else:
+            permission = [CanViewTask, IsOwner]
         return [permission_class() for permission_class in permission]

@@ -247,7 +247,7 @@ class SiteAPITestCase(APITestCase):
 
     def test_unauthenticated_access(self):
         response = self.client.get(self.site_CR_url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class CompanyAPITestCase(APITestCase):
@@ -391,7 +391,7 @@ class CompanyAPITestCase(APITestCase):
 
     def test_unauthenticated_access(self):
         response = self.client.get(self.company_CR_url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 

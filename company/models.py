@@ -24,6 +24,9 @@ class Company(models.Model):
         #     ("change_company", "Может изменять компании"),
         #     ("delete_company", "Может удалять компании"),
         # )
+        permissions = (
+            ("create_employee", "Может создавать сотрудников"),
+        )
 
     def __str__(self):
         return self.name

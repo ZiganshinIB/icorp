@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<form method="post" id="employeeForm">
+    {% csrf_token %}
+    {{ form.as_p }}
+  <button type="submit">Создать сотрудника</button>
+</form>
+
+<script>
+    const companySelect = document.getElementById('id_company');
+    const siteSelect = document.getElementById('id_site');
+    const departmentSelect = document.getElementById('id_department');
+    const positionSelect = document.getElementById('id_position');
+
+    // Обработчик изменения компании
+    companySelect.addEventListener('change', function() {
+        const companyId = this.value;
+        fetch(`/api/v1/site/?company_id=${companyId}`)  // Предполагается, что у вас есть API для получения сайтов
+            .then(response => response.json())
+            .then(data => {
+                siteSelect.innerHTML = '<option value="">---------</option>'; // Добавляем пустой вариант
+                data.forEach(site => {
+                    const option = document.createElement('option');
+                    option.value = site.id;
+                    option.textContent = site.name;
+                    siteSelect.appendChild(option);
+                });
+                siteSelect.disabled = false; // Разблокируем поле сайта
+            });
+    });
+
+    // Обработчик изменения сайта
+    siteSelect.addEventListener('change', function() {
+        const siteId = this.value;
+        fetch(`/api/v1/department/?site_id=${siteId}`)  // Предполагается, что у вас есть API для получения отделов
+            .then(response => response.json())
+            .then(data => {
+                departmentSelect.innerHTML = '<option value="">---------</option>'; // Добавляем пустой вариант
+                data.forEach(department => {
+                    const option = document.createElement('option');
+                    option.value = department.id;
+                    option.textContent = department.name;
+                    departmentSelect.appendChild(option);
+                });
+                departmentSelect.disabled = false; // Разблокируем поле отдела
+            });
+    });
+
+    // Обработчик изменения отдела
+    departmentSelect.addEventListener('change', function() {
+        const departmentId = this.value;
+        fetch(`/api/v1/position/?department_id=${departmentId}`)  // Предполагается, что у вас есть API для получения должностей
+            .then(response => response.json())
+            .then(data => {
+                positionSelect.innerHTML = '<option value="">---------</option>'; // Добавляем пустой вариант
+                data.forEach(position => {
+                    const option = document.createElement('option');
+                    option.value = position.id;
+                    option.textContent = position.name;
+                    positionSelect.appendChild(option);
+                });
+                positionSelect.disabled = false; // Разблокируем поле должности
+            });
+    });
+</script>
+
+</body>
+</html>

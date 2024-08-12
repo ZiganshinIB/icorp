@@ -10,6 +10,56 @@ class CanModel(permissions.BasePermission):
         return request.user and request.user.is_authenticated and request.user.has_perm(f'{self.model_name}.{self.action}_{self.model_name}')
 
 
+class IsOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user
+
+
+class CanCreateEmployee(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.has_perm('company.create_employee')
+
+
+class CanViewPosition(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.has_perm('company.view_position')
+
+
+class CanCreatePosition(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.has_perm('company.add_position')
+
+
+class CanUpdatePosition(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.has_perm('company.change_position')
+
+
+class CanDeletePosition(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.has_perm('company.delete_position')
+
+
+class CanViewTask(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.has_perm('task.view_task')
+
+
+class CanCreateTask(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.has_perm('task.add_task')
+
+
+class CanUpdateTask(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.has_perm('task.change_task')
+
+
+class CanDeleteTask(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.has_perm('task.delete_task')
+
+
 class CanCreateCompany(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated and request.user.has_perm('company.add_company')
@@ -48,21 +98,6 @@ class CanDeleteSite(permissions.BasePermission):
 class CanReadSite(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated and request.user.has_perm('company.view_site')
-
-
-class CanCreatePosition(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.has_perm('company.add_position')
-
-
-class CanUpdatePosition(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.has_perm('company.change_position')
-
-
-class CanDeletePosition(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.has_perm('company.delete_position')
 
 
 class CanReadPosition(permissions.BasePermission):
