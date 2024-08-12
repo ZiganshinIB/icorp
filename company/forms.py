@@ -8,21 +8,25 @@ User = get_user_model()
 
 
 class CreateEmployeeForm(forms.ModelForm):
-    company = forms.ModelChoiceField(queryset=Company.objects.all(), label='Компания')
-    site = forms.ModelChoiceField(queryset=Site.objects.none(), label='Площадка')
-    department = forms.ModelChoiceField(queryset=Department.objects.none(), label='Отдел')
-    position = forms.ModelChoiceField(queryset=Position.objects.none(), label='Должность')
+    company = forms.ModelChoiceField(queryset=Company.objects.all(), label='Компания', required=False)
+    site = forms.ModelChoiceField(queryset=Site.objects.none(), label='Площадка', required=False)
+    department = forms.ModelChoiceField(queryset=Department.objects.none(), label='Отдел', required=False)
+    position = forms.ModelChoiceField(queryset=Position.objects.none(), label='Должность', required=False)
 
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'surname', 'phone_number', 'birthday', 'date_joined', 'company', 'site',
                   'department', 'position']
-        widgets = {
-            'password': forms.PasswordInput(),
-        }
+
+
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(CreateEmployeeForm, self).__init__(*args, **kwargs)
+        self.fields['surname'].required = False
+        self.fields['phone_number'].required = False
+
+
+        # Обновление queryset для поля site на основе выбранной компании
         if 'company' in self.data:
             try:
                 company_id = int(self.data.get('company'))
@@ -30,7 +34,9 @@ class CreateEmployeeForm(forms.ModelForm):
             except (ValueError, TypeError):
                 pass
         elif self.instance.pk:
-            self.fields['site'].queryset = self.instance.company.sites.order_by('name')
+            self.fields['site'].queryset = self.instance.company.site_set.order_by('name')
+
+        # Обновление queryset для поля department на основе выбранного сайта
         if 'site' in self.data:
             try:
                 site_id = int(self.data.get('site'))
@@ -38,20 +44,23 @@ class CreateEmployeeForm(forms.ModelForm):
             except (ValueError, TypeError):
                 pass
         elif self.instance.pk:
-            self.fields['department'].queryset = self.instance.site.departments.order_by('name')
+            self.fields['department'].queryset = self.instance.site.department_set.order_by('name')
+
+        # Обновление queryset для поля position на основе выбранного отдела
         if 'department' in self.data:
             try:
                 department_id = int(self.data.get('department'))
-                self.fields['position'] = Position.objects.filter(department_id=department_id).order_by('name')
+                self.fields['position'].queryset = Position.objects.filter(department_id=department_id).order_by('name')
             except (ValueError, TypeError):
                 pass
         elif self.instance.pk:
-            self.fields['position'].queryset = self.instance.department.positions.order_by('name')
-
+            self.fields['position'].queryset = self.instance.department.position_set.order_by('name')
 
 
     def clean_phone_number(self):
         phone_number = self.cleaned_data['phone_number']
+        if not phone_number:
+            return phone_number
         if User.objects.filter(phone_number=phone_number).exists():
             raise forms.ValidationError('Такой номер телефона уже существует')
         if not validators.validate_international_phonenumber(phone_number):
