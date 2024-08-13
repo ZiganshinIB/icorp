@@ -149,3 +149,10 @@ MEDIA_URL = 'media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 INTERNAL_IPS = env.list('INTERNAL_IPS', ['127.0.0.1', 'localhost'])
+
+
+# LDAP
+LDAP_HOST = env.str('LDAP_HOST', '')
+LDAP_ADMIN = env.str('LDAP_ADMIN', '')
+LDAP_PASSWORD = env.str('LDAP_PASSWORD', '')
+LDAP_SEARCH_BASE = env.str('LDAP_SEARCH_BASE', '')
