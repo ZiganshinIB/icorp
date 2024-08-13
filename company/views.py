@@ -18,15 +18,16 @@ def create_employee(request):
         if form.is_valid():
             cd = form.save(commit=False)
             # Костыл для тестирования Стандартный пароль
-            User.objects.create_user(
+            person = User.objects.create_user(
                 first_name=cd.first_name,
                 last_name=cd.last_name,
                 surname=cd.surname,
                 password='QWEuio!@#098',
                 phone_number=cd.phone_number,
                 birthday=cd.birthday,
-                # position=cd.position,
-                date_joined=cd.date_joined
+                position=cd.position,
+                date_joined=cd.date_joined,
+                is_active=False,
             )
 
             return render(request, 'company/employee/create.html')

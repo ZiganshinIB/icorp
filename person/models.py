@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from phonenumber_field.modelfields import PhoneNumberField
-# from company.models import Position
+from company.models import Position
 from .managers import PersonManager
 
 
@@ -37,8 +37,8 @@ class Person(AbstractBaseUser, PermissionsMixin):
     phone_number = PhoneNumberField("Телефный номер", blank=True)
     # День Рождение
     birthday = models.DateField("День рождения", null=True, blank=True)
-    # !!!
-    # position = models.ForeignKey(Position, models.SET_NULL, null=True, blank=True, verbose_name="Должность")
+    # Должность
+    position = models.ForeignKey(Position, models.SET_NULL, null=True, blank=True, verbose_name="Должность")
     is_staff = models.BooleanField(
         _("staff status"),
         default=False,
@@ -59,7 +59,6 @@ class Person(AbstractBaseUser, PermissionsMixin):
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["first_name", "last_name"]
-
 
     class Meta:
         verbose_name = _("user")
