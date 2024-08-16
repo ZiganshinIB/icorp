@@ -13,6 +13,7 @@ class Settings:
         self.LDAP_ADMIN = env.str('LDAP_ADMIN', '')
         self.LDAP_PASSWORD = env.str('LDAP_PASSWORD', '')
         self.LDAP_SEARCH_BASE = env.str('LDAP_SEARCH_BASE', '')
+        self.LDAP_DOMAIN = env.str('LDAP_DOMAIN', '')
 
 
 class LDAPService:
@@ -39,6 +40,34 @@ class LDAPService:
         else:
             return None
 
+    def create_user(self, username, first_name, last_name, position, path_ou, email, password, surname=None):
+        if not self.is_connected():
+            return False
+        surname = f" {surname}" if surname else ''
+        user_cn = f"{last_name} {first_name}{surname}"
+        user_dn = f"cn={user_cn},{path_ou},{self.dc}"
+        attributes = {
+            'displayName': user_cn,
+            'givenName': first_name,
+            'sn': last_name,
+            'sAMAccountName': username,
+            'userPrincipalName': f"{username}@{settings.LDAP_DOMAIN}",
+            'mail': email,
+            'title': position,
+        }
+
+        try:
+            self.connection.add(dn=user_dn, attributes=attributes, object_class='user')
+            self.connection.extend.microsoft.unlock_account(user_dn)
+            self.reset_password(username, password)
+            change_uac_attribute = {
+                "userAccountControl": [(MODIFY_REPLACE, [66048])]}
+            print("Successfully created user.")
+            return True
+        except Exception as e:
+            print(f"Failed to create user: {e}")
+            return False
+
     def connect(self):
         try:
             self.connection = Connection(
@@ -54,6 +83,10 @@ class LDAPService:
             print(f"Failed to bind to LDAP: {e}")
             self.connection = None
 
+    def reset_password(self, username, new_password):
+        powershell_script = f'Set-ADAccountPassword {username} -Reset -NewPassword (ConvertTo-SecureString -AsPlainText "{new_password}" -Force -Verbose) -PassThru'
+        subprocess.run(['powershell', powershell_script])
+
     def disconnect(self):
         if self.connection:
             self.connection.unbind()
@@ -66,7 +99,16 @@ class LDAPService:
 def main():
     ldap = LDAPService()
     ldap.connect()
-    res = ldap.search_user('ilmir.ziganshin')
+    res = ldap.search_user('sorokin')
+    print(res)
+    res = ldap.create_user(
+        username='testuser',
+        first_name='Тест',
+        last_name='пользователь',
+        position='Администратор',
+        path_ou='OU=ОИТ',
+        email='testuser@icorp.com',
+        password='password')
     print(res)
     ldap.disconnect()
 
