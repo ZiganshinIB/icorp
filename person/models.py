@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 from company.models import Position
 from .managers import PersonManager
+from ad.models import Group
 
 
 class Person(AbstractBaseUser, PermissionsMixin):
@@ -39,6 +40,8 @@ class Person(AbstractBaseUser, PermissionsMixin):
     birthday = models.DateField("День рождения", null=True, blank=True)
     # Должность
     position = models.ForeignKey(Position, models.SET_NULL, null=True, blank=True, verbose_name="Должность")
+    # Группы
+    ad_groups = models.ManyToManyField(Group, blank=True, related_name="persons", through='UserGroup', verbose_name="AD_Группы")
     is_staff = models.BooleanField(
         _("staff status"),
         default=False,
@@ -90,3 +93,14 @@ class Person(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Отправляет электронное письмо этому пользователю."""
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+
+class UserGroup(models.Model):
+    user = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='user_groups')
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='user_groups')
+
+    class Meta:
+        unique_together = ('user', 'group')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.group.name}"
