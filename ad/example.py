@@ -95,21 +95,89 @@ class LDAPService:
     def is_connected(self):
         return self.connection is not None
 
+    def search_group(self,
+                     name,
+                     attributes=['DistinguishedName', 'GroupCategory', 'SamAccountName', 'Members']):
+        if not self.is_connected():
+            return None
+        search_filter = f'(&(CN={name})(ObjectClass=group))'
+        self.connection.search(
+            self.dc,
+            search_filter
+        )
+        if len(self.connection.entries) > 0:
+            return self.connection.entries[0]
+        else:
+            return None
+
+    def get_user_groups(self,
+                        username
+                        ):
+        if not self.is_connected():
+            return None
+        search_filter = f'(sAMAccountName={username})'
+        self.connection.search(
+            self.dc,
+            search_filter,
+            attributes=['memberOf']
+        )
+        if len(self.connection.entries) > 0:
+            return self.connection.entries[0].memberOf
+        else:
+            return None
+
+    def get_object_by_ds(self, ds_name, attributes=['DistinguishedName', 'sAMAccountName', 'userPrincipalName', 'objectClass', 'memberOf']):
+        if not self.is_connected():
+            return None
+        search_filter = f'(distinguishedName={ds_name})'
+        self.connection.search(
+            self.dc,
+            search_filter,
+            attributes=attributes
+        )
+        if len(self.connection.entries) > 0:
+            return self.connection.entries[0]
+        else:
+            return None
+
+    def get_all_groups(self, attributes=['CN', 'DistinguishedName', 'SamAccountName', 'objectClass', 'member',]):
+        if not self.is_connected():
+            return None
+        search_filter = '(objectClass=group)'
+        self.connection.search(
+            self.dc,
+            search_filter,
+            attributes=attributes
+        )
+        if len(self.connection.entries) > 0:
+            return self.connection.entries
+        else:
+            return None
+
+
 
 def main():
     ldap = LDAPService()
     ldap.connect()
-    res = ldap.search_user('sorokin')
+    res = ldap.search_user('ilmir.ziganshin')
     print(res)
-    res = ldap.create_user(
-        username='testuser',
-        first_name='Тест',
-        last_name='пользователь',
-        position='Администратор',
-        path_ou='OU=ОИТ',
-        email='testuser@icorp.com',
-        password='password')
+    res = ldap.search_group('ОИТ')
     print(res)
+    res = ldap.get_user_groups('ilmir.ziganshin')
+    print(res)
+    res = ldap.get_all_groups()
+    print(res)
+    for r in res:
+        print(r['SamAccountName'])
+    # res = ldap.create_user(
+    #     username='testuser',
+    #     first_name='Тест',
+    #     last_name='пользователь',
+    #     position='Администратор',
+    #     path_ou='OU=ОИТ',
+    #     email='testuser@icorp.com',
+    #     password='password')
+    # print(res)
     ldap.disconnect()
 
 
