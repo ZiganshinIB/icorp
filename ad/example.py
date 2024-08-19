@@ -154,6 +154,19 @@ class LDAPService:
         else:
             return None
 
+    def get_all_ou(self, attributes=['CN', 'Name', 'DistinguishedName', 'SamAccountName', 'objectClass', 'member',]):
+        if not self.is_connected():
+            return None
+        search_filter = '(objectClass=organizationalUnit)'
+        self.connection.search(
+            self.dc,
+            search_filter,
+            attributes=attributes
+        )
+        if len(self.connection.entries) > 0:
+            return self.connection.entries
+        else:
+            return None
 
 
 def main():
@@ -165,10 +178,11 @@ def main():
     print(res)
     res = ldap.get_user_groups('ilmir.ziganshin')
     print(res)
-    res = ldap.get_all_groups()
+    res = ldap.get_all_ou()
     print(res)
     for r in res:
-        print(r['SamAccountName'])
+        print(r.distinguishedName)
+        print(r.Name)
     # res = ldap.create_user(
     #     username='testuser',
     #     first_name='Тест',
