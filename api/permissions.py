@@ -1,5 +1,26 @@
 from rest_framework import permissions
 
+class IsGetRequest(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.method == 'GET'
+
+class CanViewADUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and (request.user.has_group('ad_admin') or request.user.username == request.GET.get('username'))
+
+class RequireUsernameParam(permissions.BasePermission):
+    message = 'Не был передан параметр username'
+    def has_permission(self, request, view):
+        if request.method == 'GET':
+            if 'username' not in request.query_params:
+                return False
+        return True
+
+
+class CanCreateADUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.has_group('ad_admin')
+
 
 class CanModel(permissions.BasePermission):
     def __init__(self, model_name, action):

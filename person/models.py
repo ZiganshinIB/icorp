@@ -89,6 +89,14 @@ class Person(AbstractBaseUser, PermissionsMixin):
             short_name = f"{self.last_name} {self.first_name[0]}."
         return short_name
 
+    def has_group(self, group_name):
+        if self.is_superuser:
+            return True
+        try:
+            group = self.groups.get(name=group_name)
+            return True
+        except Group.DoesNotExist:
+            return False
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Отправляет электронное письмо этому пользователю."""

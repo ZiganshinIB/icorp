@@ -1,4 +1,4 @@
-from ldap3 import Server, Connection, ALL, NTLM
+from ldap3 import Server, Connection, ALL, NTLM, MODIFY_REPLACE
 from ldap3.core.exceptions import LDAPBindError
 from django.conf import settings
 import subprocess
@@ -28,7 +28,7 @@ class LDAPService:
         else:
             return None
 
-    def create_user(self, username, first_name, last_name, position, path_ou, email, password, surname=None):
+    def create_user(self, username, first_name, last_name, position, path_ou, password, email='', surname=None):
         if not self.is_connected():
             return False
         surname = f" {surname}" if surname else ''
@@ -57,6 +57,8 @@ class LDAPService:
             return False
 
     def connect(self):
+        if self.is_connected():
+            return
         try:
             self.connection = Connection(
                 self.server,

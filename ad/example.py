@@ -172,17 +172,19 @@ class LDAPService:
 def main():
     ldap = LDAPService()
     ldap.connect()
-    res = ldap.search_user('ilmir.ziganshin')
-    print(res)
-    res = ldap.search_group('ОИТ')
-    print(res)
-    res = ldap.get_user_groups('ilmir.ziganshin')
-    print(res)
-    res = ldap.get_all_ou()
-    print(res)
-    for r in res:
-        print(r.distinguishedName)
-        print(r.Name)
+    res = ldap.search_user('sergey.petrov', ['mail', 'title', 'memberOf', 'name', "givenName", 'sn'])
+    print(res['mail'] if res['mail'] else '')
+    print(res['givenName'])
+    print(res['sn'])
+    # res = ldap.search_group('ОИТ')
+    # print(res)
+    # res = ldap.get_user_groups('ilmir.ziganshin')
+    # print(res)
+    # # res = ldap.get_all_ou()
+    # # print(res)
+    # for r in res:
+    #     print(r.sAMAccountName)
+    #     print(r.distinguishedName)
     # res = ldap.create_user(
     #     username='testuser',
     #     first_name='Тест',

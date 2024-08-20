@@ -10,7 +10,7 @@ env.read_env()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 DEBUG = env.bool("DJANGO_DEBUG", default=False)
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", ['127.0.0.1', 'localhost'])
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", ['127.0.0.1', 'localhost'])
 
 
 # Application definition
@@ -158,3 +158,4 @@ LDAP_HOST = env.str('LDAP_HOST', '')
 LDAP_ADMIN = env.str('LDAP_ADMIN', '')
 LDAP_PASSWORD = env.str('LDAP_PASSWORD', '')
 LDAP_SEARCH_BASE = env.str('LDAP_SEARCH_BASE', '')
+LDAP_DOMAIN = env.str('LDAP_DOMAIN', '')
