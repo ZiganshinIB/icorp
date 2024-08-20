@@ -1,5 +1,7 @@
 from rest_framework import viewsets, generics, views, permissions, mixins, decorators
-
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import NotFound
+from rest_framework.response import Response
 
 # Company
 from company.models import Company
@@ -21,6 +23,29 @@ from .permissions import CanCreateDepartment, CanUpdateDepartment, CanDeleteDepa
 from task.models import Task
 from task.serializers import TaskSerializer
 from .permissions import IsOwner, CanViewTask, CanCreateTask, CanUpdateTask, CanDeleteTask
+from ad.ldap_service import LDAPService
+
+ad = LDAPService()
+
+
+@api_view(http_method_names=['POST'])
+def get_ADUser(request):
+    response = {'username': request.data['username'], 'groups': []}
+    cd = request.data
+    cd['username'] = cd['username'].lower()
+    ad_user = ad.get_object_by_ds(cd['username'])
+    for group in ad_user.get('memberOf', []):
+        response['groups'].append(
+            ad.get_object_by_ds(
+                ds_name=group,
+                attributes=[ 'sAMAccountName'],
+                object_class='group')
+            ['sAMAccountName']
+        )
+
+    if not ad_user:
+        raise NotFound
+    return Response(response)
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
