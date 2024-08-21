@@ -1,5 +1,5 @@
 # from django.conf import settings
-from ldap3 import Server, Connection, ALL, NTLM
+from ldap3 import Server, Connection, ALL, NTLM, MODIFY_REPLACE
 from ldap3.core.exceptions import LDAPBindError
 import subprocess
 from dotenv import load_dotenv
@@ -176,6 +176,15 @@ def main():
     print(res['mail'] if res['mail'] else '')
     print(res['givenName'])
     print(res['sn'])
+    ldap.create_user(
+        username='ilmir.ziganshin2',
+        first_name='Илья',
+        last_name='Зиганшин',
+        position='Администратор',
+        path_ou='OU=ОИТ',
+        email='testuser@icorp.com',
+        password='password'
+    )
     # res = ldap.search_group('ОИТ')
     # print(res)
     # res = ldap.get_user_groups('ilmir.ziganshin')

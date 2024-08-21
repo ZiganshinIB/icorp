@@ -1,8 +1,12 @@
+import logging
+
 from ldap3 import Server, Connection, ALL, NTLM, MODIFY_REPLACE
 from ldap3.core.exceptions import LDAPBindError
 from django.conf import settings
 import subprocess
 
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class LDAPService:
     def __init__(self):
@@ -28,7 +32,8 @@ class LDAPService:
         else:
             return None
 
-    def create_user(self, username, first_name, last_name, position, path_ou, password, email='', surname=None):
+    def create_user(self, username, first_name, last_name, position, path_ou, password, email=None, surname=None):
+        logging.debug(msg=f'{username=} {first_name=} {last_name=} {position=} {path_ou=} {password=} {email=}')
         if not self.is_connected():
             return False
         surname = f" {surname}" if surname else ''
@@ -40,9 +45,10 @@ class LDAPService:
             'sn': last_name,
             'sAMAccountName': username,
             'userPrincipalName': f"{username}@{settings.LDAP_DOMAIN}",
-            'mail': email,
             'title': position,
         }
+        if email is not None:
+            attributes['mail'] =email
 
         try:
             self.connection.add(dn=user_dn, attributes=attributes, object_class='user')
@@ -50,10 +56,11 @@ class LDAPService:
             self.reset_password(username, password)
             change_uac_attribute = {
                 "userAccountControl": [(MODIFY_REPLACE, [66048])]}
+            self.connection.modify(dn=user_dn, changes=change_uac_attribute)
             print("Successfully created user.")
             return True
         except Exception as e:
-            print(f"Failed to create user: {e}")
+            logging.error(msg=f"Failed to create user: {e}", exc_info=True)
             return False
 
     def connect(self):
