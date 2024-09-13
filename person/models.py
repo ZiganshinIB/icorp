@@ -13,7 +13,6 @@ from ad.models import Group
 
 class Person(AbstractBaseUser, PermissionsMixin):
     username_validator = UnicodeUsernameValidator()
-    # Имя пользователя в сиситемах
     username = models.CharField(
         _("username"),
         max_length=150,
@@ -27,20 +26,13 @@ class Person(AbstractBaseUser, PermissionsMixin):
         },
     )
 
-    # Имя
     first_name = models.CharField(_("first name"), max_length=150, )
     last_name = models.CharField(_("last name"), max_length=150, )
-    # Отчество
     surname = models.CharField("Отчество", max_length=150, blank=True)
-    # Почта
     email = models.EmailField(_("email address"), blank=True)
-    # Телефон
     phone_number = PhoneNumberField("Телефный номер", blank=True)
-    # День Рождение
     birthday = models.DateField("День рождения", null=True, blank=True)
-    # Должность
     position = models.ForeignKey(Position, models.SET_NULL, null=True, blank=True, verbose_name="Должность")
-    # Группы
     ad_groups = models.ManyToManyField(Group, blank=True, related_name="persons", through='UserGroup', verbose_name="AD_Группы")
     is_staff = models.BooleanField(
         _("staff status"),

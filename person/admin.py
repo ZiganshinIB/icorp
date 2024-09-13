@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Person, UserGroup
-from ad.models import Group
+
 
 
 class UserGroupInline(admin.TabularInline):
@@ -12,5 +12,3 @@ class UserGroupInline(admin.TabularInline):
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('username', 'first_name', 'last_name', 'email')
     inlines = [UserGroupInline]
-
-# Register your models here.
