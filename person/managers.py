@@ -31,7 +31,8 @@ class PersonManager(BaseUserManager):
         person.save(using=self._db)
         return person
 
-    def create_superuser(self, first_name, last_name, password, **extra_fields):
+    def create_superuser(self, username, first_name, last_name, password, **extra_fields):
+        print("Start create_superuser")
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)

@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     'ad.apps.AdConfig',
     'company.apps.CompanyConfig',
     'task.apps.TaskConfig',
-
+    'equipment.apps.EquipmentConfig',
     "phonenumber_field",
     'rest_framework',
     'rest_framework.authtoken',
